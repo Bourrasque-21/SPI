@@ -2,7 +2,7 @@
 
 ## Overview
 
-SystemVerilog로 구현한 SPI Master/Slave 설계임. SPI Master는 Mode 0부터 Mode 3까지 지원함. SPI 클럭 속도를 설정할 수 있으며, 2개의 Chip Select를 통해 통신할 Slave를 선택함.
+SystemVerilog로 구현한 SPI Master/Slave. SPI Master는 Mode 0부터 Mode 3까지 지원함. SPI 클럭 속도를 설정할 수 있으며, 2개의 Chip Select를 통해 통신할 Slave를 선택함.
 
 기본 SPI RTL, Master/Slave UVM testbench, AXI4-Lite 기반 SPI Master 및 bare-metal C application으로 구성함.
 
@@ -161,17 +161,6 @@ RTL simulation과 UVM 검증 이후 FPGA 보드에서 기본 SPI Master/Slave와
 `demo_spi_master`는 Master 측의 8비트 switch 값을 `tx_data`로 전송하고, 선택한 Slave에서 반환한 `rx_data`를 8비트 LED에 출력함. SPI Mode 0으로 동작하며 `slave_sel` 입력으로 `CS0` 또는 `CS1`을 선택함.
 
 `demo_spi_slave`는 두 개의 SPI Slave를 구성함. 각 Slave는 수신한 MOSI 데이터를 LED에 출력하고, 해당 Slave의 switch 값을 MISO를 통해 Master로 반환함.
-
-```text
-Master Switch
-     |
-     v
- SPI Master -- MOSI --> Selected SPI Slave --> Slave LED
- SPI Master <-- MISO -- Selected SPI Slave <-- Slave Switch
-     |
-     v
-Master LED
-```
 
 | 테스트 항목 | 확인 내용 | 결과 |
 | --- | --- | --- |
