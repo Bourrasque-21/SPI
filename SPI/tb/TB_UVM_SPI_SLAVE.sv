@@ -99,7 +99,6 @@ class spi_slave_driver extends uvm_driver #(spi_slave_seq_item);
         vif.mosi    <= 1'b0;
         vif.tx_data <= tr.tx_data;
 
-        // Keep CS high long enough for the slave to preload tx_data onto MISO.
         repeat (3) @(posedge vif.clk);
 
         vif.cs_n <= 1'b0;
@@ -108,7 +107,6 @@ class spi_slave_driver extends uvm_driver #(spi_slave_seq_item);
         for (int i = 7; i >= 0; i--) begin
             vif.mosi <= tr.tx_data[i];
 
-            // MOSI must be stable before the sampling edge in mode 0.
             repeat (tr.half_period_cycles) @(posedge vif.clk);
             vif.sclk <= 1'b1;
 
@@ -310,7 +308,7 @@ class spi_slave_scoreboard extends uvm_scoreboard;
         super.report_phase(phase);
         `uvm_info("SPI_SLV_SCB", $sformatf(
                   {
-                      "SPI slave scoreboard summary:\n",
+                      "\n===SPI slave report summary===\n",
                       "  total       : %0d\n",
                       "  pass        : %0d\n",
                       "  fail        : %0d"
@@ -368,7 +366,7 @@ class spi_slave_coverage extends uvm_subscriber #(spi_slave_seq_item);
         super.report_phase(phase);
         `uvm_info("SPI_SLV_COV", $sformatf(
                   {
-                      "=======SPI coverage summary=======\n",
+                      "\n=======SPI coverage summary=======\n",
                       "  pattern               : %0.2f%%\n",
                       "  half_period           : %0.2f%%\n",
                       "  pattern x half_period : %0.2f%%\n",
@@ -455,7 +453,7 @@ class spi_slave_smoke_sequence extends uvm_sequence #(spi_slave_seq_item);
 
     function new(string name = "spi_slave_smoke_sequence");
         super.new(name);
-        num_items = 100;
+        num_items = 1000;
     endfunction
 
     task body();
@@ -483,12 +481,12 @@ class spi_slave_aa55_sequence extends spi_slave_smoke_sequence;
 
     task body();
         spi_slave_seq_item tr;
-        bit [7:0] patterns[2] = '{8'hAA, 8'h55};
+        bit [7:0] patterns[4] = '{8'hAA, 8'h55, 8'h00, 8'hFF};
 
         for (int i = 0; i < num_items; i++) begin
             tr = spi_slave_seq_item::type_id::create($sformatf("tr_%0d", i));
             start_item(tr);
-            if (!tr.randomize() with {tx_data == patterns[i%2];}) begin
+            if (!tr.randomize() with {tx_data == patterns[i%4];}) begin
                 `uvm_fatal(
                     "SPI_SLV_SEQ",
                     "Failed to randomize spi_slave_seq_item for AA55 sequence")
@@ -528,7 +526,7 @@ class spi_slave_test extends uvm_test;
 
         phase.raise_objection(this);
 
-        seq = spi_slave_smoke_sequence::type_id::create("seq");
+        seq = spi_slave_aa55_sequence::type_id::create("seq");
         `uvm_info("SPI_SLV_TEST", "Starting SPI slave smoke sequence", UVM_LOW)
         seq.start(env.agent.sequencer);
 

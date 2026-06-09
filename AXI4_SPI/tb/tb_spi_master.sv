@@ -692,4 +692,9 @@ module tb_spi_master;
         #50ms;
         `uvm_fatal("TB_TIMEOUT", "Simulation timeout")
     end
+
+    initial begin
+        $fsdbDumpfile("novas.fsdb");
+        $fsdbDumpvars(0, tb_spi_master, "+all");
+    end
 endmodule

@@ -310,7 +310,7 @@ class spi_scoreboard extends uvm_scoreboard;
         super.report_phase(phase);
         `uvm_info("SPI_SCB", $sformatf(
                   {
-                      "SPI report summary:\n",
+                      "\n===SPI report summary===\n",
                       "  total       : %0d\n",
                       "  pass        : %0d\n",
                       "  fail        : %0d"
@@ -472,7 +472,7 @@ class spi_smoke_sequence extends uvm_sequence #(spi_seq_item);
 
     function new(string name = "spi_smoke_sequence");
         super.new(name);
-        num_items = 300;
+        num_items = 1000;
     endfunction
 
     task body();
@@ -499,12 +499,12 @@ class spi_aa55_sequence extends spi_smoke_sequence;
 
     task body();
         spi_seq_item tr;
-        bit [7:0] tx_patterns[2] = '{8'hAA, 8'h55};
+        bit [7:0] tx_patterns[4] = '{8'hAA, 8'h55, 8'h00, 8'hFF};
 
         for (int i = 0; i < num_items; i++) begin
             tr = spi_seq_item::type_id::create($sformatf("tr_%0d", i));
             start_item(tr);
-            if (!tr.randomize() with {tx_data == tx_patterns[i%2];}) begin
+            if (!tr.randomize() with {tx_data == tx_patterns[i%4];}) begin
                 `uvm_fatal("SPI_SEQ",
                            "Failed to randomize spi_seq_item for AA55 sequence")
             end
